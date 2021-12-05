@@ -7,6 +7,8 @@ import validator from 'validator';
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { userSignup ,restaurantSignup} from "../../actions/signupActions";
+import { graphql } from 'react-apollo';
+import { addRestaurantMutation } from '../../mutation/mutations';
 class Register extends Component {
     constructor(props) {
         super(props);
@@ -47,7 +49,7 @@ class Register extends Component {
         return isValid;
      }
    
-    handleSubmit = (e) => {
+    handleSubmit = async(e) => {
         e.preventDefault();
 
         const buyerData = {
@@ -69,10 +71,23 @@ class Register extends Component {
         }
         console.log(ownerData);
         if (!this.state.owner) {  
-             
-                this.props.userSignup(buyerData);          
+
+                //this.props.userSignup(buyerData);          
         } else {
-                this.props.restaurantSignup(ownerData);   
+            let mutationResponse =await this.props.addRestaurantMutation({
+                variables: {
+                    restaurantname: this.state.username,
+                    email: this.state.email,
+                    password: this.state.password,
+                    city: this.state.city,
+                    owner:this.state.owner
+                }
+            });
+            //let response = mutationResponse.data.addRestaurant;
+            console.log("Sign up")
+            console.log(mutationResponse)
+            console.log("Sign up")
+           // this.props.restaurantSignup(ownerData);   
         }
 
     }
@@ -95,29 +110,27 @@ class Register extends Component {
         var userForm = null;
         var accountType = "Owner";
         let message = "";
-        if(this.props.user){
-            console.log(this.props.user.message)
-            if(this.props.user.message === "User Registration successful"){
-                redirectHome = <Redirect to="/Login" />
-                this.props.user.message = null;
-                message = null;
-            }
-            else{
-                message = this.props.user.message;
-                redirectHome = <Redirect to="/Register" />
-                this.props.user.message = null;   
+        // if(this.props.user){
+        //     console.log(this.props.user.message)
+        //     if(this.props.user.message === "User Registration successful"){
+        //         redirectHome = <Redirect to="/Login" />
+        //         this.props.user.message = null;
+        //         message = null;
+        //     }
+        //     else{
+        //         message = this.props.user.message;
+        //         redirectHome = <Redirect to="/Register" />
+        //         this.props.user.message = null;   
       
-            }
-        }else{
-            message = "";
-            this.props.user.message = null;   
-            redirectHome = <Redirect to="/Register"/>
-        }
-        
-        
-        // if(this.state.message == "User email already registered"){
-        //     alert("Email already exists");
+        //     }
+        // }else{
+        //     message = "";
+        //     this.props.user.message = null;   
+        //     redirectHome = <Redirect to="/Register"/>
         // }
+        
+        
+       
         if (this.state.owner) {
             ownerForm =
            
@@ -183,17 +196,18 @@ class Register extends Component {
         )
     }
 }
-Register.propTypes = {
-    userSignup: PropTypes.func.isRequired,
-    restaurantSignup: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired,
+// Register.propTypes = {
+//     userSignup: PropTypes.func.isRequired,
+//     restaurantSignup: PropTypes.func.isRequired,
+//     user: PropTypes.object.isRequired,
    
-  };
+//   };
   
-  const mapStateToProps = (state) => {
-    return {
-      user: state.signup.user,
-    };
-  };
+//   const mapStateToProps = (state) => {
+//     return {
+//       user: state.signup.user,
+//     };
+//   };
   
-  export default connect(mapStateToProps, {userSignup,restaurantSignup})(Register);
+  export default graphql(addRestaurantMutation, { name: "addRestaurantMutation" })(Register);
+//   export default connect(mapStateToProps, {userSignup,restaurantSignup})(Register);
