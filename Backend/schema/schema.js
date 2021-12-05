@@ -2,6 +2,7 @@ const graphql = require('graphql');
 
 const Restaurants = require('../Models/RestaurantModel');
 const {restaurantSignup } = require('../mutations/signup');
+const {restaurantLogin } = require('../mutations/login');
 
 const {
     GraphQLObjectType,
@@ -76,6 +77,16 @@ const {
             },
             async resolve(parent, args) {
             return restaurantSignup(args)
+            },
+          },
+          restaurantLogin: {
+            type: StatusType,
+            args: {
+              email: { type: GraphQLString },
+              password: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+              return restaurantLogin(args);
             },
           },
         },

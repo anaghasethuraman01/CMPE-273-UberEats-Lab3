@@ -8,12 +8,16 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { userSignup ,restaurantSignup} from "../../actions/signupActions";
 import { graphql } from 'react-apollo';
-import { addRestaurantMutation } from '../../mutation/mutations';
+import { addRestaurantMutation,addCustomerMutation } from '../../mutation/mutations';
 class Register extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            success:'',
+            signupFlag:'',
+            message:''
+        };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -71,10 +75,36 @@ class Register extends Component {
         }
         console.log(ownerData);
         if (!this.state.owner) {  
+            // let mutationResponseCustomer=await this.props.addCustomerMutation({
+            //     variables: {
+            //         username: this.state.username,
+            //         email: this.state.email,
+            //         password: this.state.password,
+            //         owner:this.state.owner
+            //     }
+            // });
+            // let response = mutationResponseCustomer.data.addCustomer;
+            // if(response){
+            //     if (response.status === "200") {
+            //         this.setState({
+            //             success: true,
+            //             signupFlag: true
+            //         });
+            //     } else {
+            //         this.setState({
+            //             message: response.message,
+            //             signupFlag: true
+            //         });
+            //     }
+            // }
+            // console.log("Sign up customer")
+            // console.log(response)
+            // console.log("Sign up customer")
 
+            
                 //this.props.userSignup(buyerData);          
         } else {
-            let mutationResponse =await this.props.addRestaurantMutation({
+            let mutationResponseRestaurant =await this.props.addRestaurantMutation({
                 variables: {
                     restaurantname: this.state.username,
                     email: this.state.email,
@@ -83,11 +113,24 @@ class Register extends Component {
                     owner:this.state.owner
                 }
             });
-            //let response = mutationResponse.data.addRestaurant;
+            let response = mutationResponseRestaurant.data.addRestaurant;
+            if(response){
+                if (response.status === "200") {
+                    this.setState({
+                        success: true,
+                        signupFlag: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.message,
+                        signupFlag: true
+                    });
+                }
+            }
             console.log("Sign up")
-            console.log(mutationResponse)
+            console.log(response)
             console.log("Sign up")
-           // this.props.restaurantSignup(ownerData);   
+         
         }
 
     }
@@ -110,26 +153,12 @@ class Register extends Component {
         var userForm = null;
         var accountType = "Owner";
         let message = "";
-        // if(this.props.user){
-        //     console.log(this.props.user.message)
-        //     if(this.props.user.message === "User Registration successful"){
-        //         redirectHome = <Redirect to="/Login" />
-        //         this.props.user.message = null;
-        //         message = null;
-        //     }
-        //     else{
-        //         message = this.props.user.message;
-        //         redirectHome = <Redirect to="/Register" />
-        //         this.props.user.message = null;   
-      
-        //     }
-        // }else{
-        //     message = "";
-        //     this.props.user.message = null;   
-        //     redirectHome = <Redirect to="/Register"/>
-        // }
-        
-        
+        if(this.state.success){
+            redirectHome = <Redirect to="/Login" />
+        }
+        else if(this.state.message === "REST_PRESENT"){
+            message = "Restaurant already Registered!";
+        }
        
         if (this.state.owner) {
             ownerForm =
@@ -208,6 +237,6 @@ class Register extends Component {
 //       user: state.signup.user,
 //     };
 //   };
-  
+ 
   export default graphql(addRestaurantMutation, { name: "addRestaurantMutation" })(Register);
 //   export default connect(mapStateToProps, {userSignup,restaurantSignup})(Register);

@@ -11,12 +11,17 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import jwt_decode from "jwt-decode";
 import { userLogin,restaurantLogin} from "../../actions/loginActions";
+import { restaurantLoginMutation } from '../../mutation/mutations';
+import { graphql } from 'react-apollo';
 class Login extends Component {
  
     constructor(props) {
         super(props);
         this.state= {
-            message : null
+            
+            success:'',
+            signupFlag:'',
+            message:''
         };
         
         this.handleChange = this.handleChange.bind(this);
@@ -45,7 +50,7 @@ class Login extends Component {
 
   
   
-    handleSubmit = (e) => {
+    handleSubmit = async (e) => {
         e.preventDefault();
         // if (this.validateLogin() === true) {
         const credential = {
@@ -55,10 +60,33 @@ class Login extends Component {
         }
         
         if(credential.usertype === 'customer'){
-            // console.log("customer")
-            this.props.userLogin(credential);
+            console.log("customer")
+            //this.props.userLogin(credential);
         }else if(credential.usertype === 'restaurant'){
-            this.props.restaurantLogin(credential);
+            let mutationResponse = await this.props.restaurantLoginMutation({
+                variables: {
+                    email: this.state.email,
+                    password: this.state.password,
+                }
+            });
+            let response = mutationResponse.data.restaurantLogin;
+            if(response){
+                if (response.status === "200") {
+                    this.setState({
+                        success: true,
+                        signupFlag: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.message,
+                        signupFlag: true
+                    });
+                }
+            }
+            console.log("****")
+            console.log(this.state.success)
+            console.log("****")
+            // this.props.restaurantLogin(credential);
             
         }else{
             alert("Provide valid user type");
@@ -81,43 +109,50 @@ class Login extends Component {
             redirectHome = <Redirect to="/" />
            
         }
-        console.log(this.props.login)
+        if(this.state.success){
+            console.log("here")
+            redirectHome = <Redirect to="/RestaurantHome" />
+        }
+        else if(this.state.message === "INVALID_RESTAURANT_CREDENTIALS"){
+            message = "Invalid Credentials!";
+        }
+        //console.log(this.props.login)
 
        
     
-        if(this.props.login ){
-            console.log("here")
-            console.log(this.props.login.message)
-            if(this.props.login.message === "Customer Found"){
-                redirectHome = <Redirect to="/CustomerHome" />
-                localStorage.setItem("userid",this.props.login.result._id)
-                localStorage.setItem("username",this.props.login.result.username)
-                localStorage.setItem("city",this.props.login.result.city)
-                this.props.login.message = null;
-                message = null;
-            }else if(this.props.login.message === "Restaurant Found"){
-                redirectHome = <Redirect to="/RestaurantHome" />
-                localStorage.setItem("restaurantid",this.props.login.result._id)
-                localStorage.setItem("restaurantname",this.props.login.result.restaurantname)
-                localStorage.setItem("email",this.props.login.result.email)
-                localStorage.setItem("city",this.props.login.result.city)
-                this.props.login.message = null;
-                message = null;
-            }
-            // if(this.props.login.message === "Invalid credentials" ||this.props.login.message === "Invalid User" ){
-            //     message = this.props.login.message;
-            // }
+    //     if(this.props.login ){
+    //         console.log("here")
+    //         console.log(this.props.login.message)
+    //         if(this.props.login.message === "Customer Found"){
+    //             redirectHome = <Redirect to="/CustomerHome" />
+    //             localStorage.setItem("userid",this.props.login.result._id)
+    //             localStorage.setItem("username",this.props.login.result.username)
+    //             localStorage.setItem("city",this.props.login.result.city)
+    //             this.props.login.message = null;
+    //             message = null;
+    //         }else if(this.props.login.message === "Restaurant Found"){
+    //             redirectHome = <Redirect to="/RestaurantHome" />
+    //             localStorage.setItem("restaurantid",this.props.login.result._id)
+    //             localStorage.setItem("restaurantname",this.props.login.result.restaurantname)
+    //             localStorage.setItem("email",this.props.login.result.email)
+    //             localStorage.setItem("city",this.props.login.result.city)
+    //             this.props.login.message = null;
+    //             message = null;
+    //         }
+    //         // if(this.props.login.message === "Invalid credentials" ||this.props.login.message === "Invalid User" ){
+    //         //     message = this.props.login.message;
+    //         // }
         
-            else if(this.props.login.message === "Invalid credentials" ||this.props.login.message === "Invalid User" ){
-                message = this.props.login.message;
-                this.props.login.message = null;
-            }
+    //         else if(this.props.login.message === "Invalid credentials" ||this.props.login.message === "Invalid User" ){
+    //             message = this.props.login.message;
+    //             this.props.login.message = null;
+    //         }
         
-            else{
-                    message = "";
-                    redirectHome = <Redirect to="/Login" />
-                }
-    }
+    //         else{
+    //                 message = "";
+    //                 redirectHome = <Redirect to="/Login" />
+    //             }
+    // }
 
         return (
             
@@ -180,15 +215,16 @@ class Login extends Component {
     }
 }
 
-Login.propTypes = {
-    userLogin: PropTypes.func.isRequired,
-    restaurantLogin: PropTypes.func.isRequired,
-    login: PropTypes.object.isRequired,
-  };
+// Login.propTypes = {
+//     userLogin: PropTypes.func.isRequired,
+//     restaurantLogin: PropTypes.func.isRequired,
+//     login: PropTypes.object.isRequired,
+//   };
   
-  const mapStateToProps = (state) => {
-    return {
-      login: state.login.login,
-    };
-  };
-  export default connect(mapStateToProps, {userLogin,restaurantLogin})(Login);
+//   const mapStateToProps = (state) => {
+//     return {
+//       login: state.login.login,
+//     };
+//   };
+//   export default connect(mapStateToProps, {userLogin,restaurantLogin})(Login);
+export default graphql(restaurantLoginMutation, { name: "restaurantLoginMutation" })(Login);
