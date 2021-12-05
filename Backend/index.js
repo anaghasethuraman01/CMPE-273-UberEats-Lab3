@@ -5,7 +5,8 @@ var cors = require('cors');
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(bodyParser.json());
-
+const graphqlHTTP = require('express-graphql'); 
+const schema = require('./schema/schema');
 //Allow Access Control
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -140,13 +141,21 @@ app.post('/images', upload.single('file'), async (req, res) => {
 
 
 
+app.use("/ubereats",graphqlHTTP({
+  schema,
+  graphiql: true
+}));
 
+
+app.listen(5000, ()=>{
+  console.log("GraphQL server started on port 5000");
+})
 
 // app.listen(5000);
 // console.log("Server Listening on port 5000");
-const port = process.env.PORT || 5000;
-var server = app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});  
+// const port = process.env.PORT || 5000;
+// var server = app.listen(port, () => {
+//   console.log(`Server listening on port ${port}`);
+// });  
 
-module.exports = app;
+// module.exports = app;

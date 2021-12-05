@@ -7,7 +7,6 @@ var restaurantSchema = new Schema({
     password: {type: String, required: true},
     owner:{type: Boolean, required: true},
     city:{type:String,required:true},
-    password: {type: String, required: true},
     description: {type: String, required: false},
     phone: {type: Number, required: false},
     address: {type: String, required: false},
