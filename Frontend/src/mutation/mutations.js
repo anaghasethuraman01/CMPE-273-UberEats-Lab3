@@ -12,7 +12,7 @@ mutation AddRestaurant($restaurantname: String, $email: String, $password: Strin
 const restaurantLoginMutation = gql`
 mutation RestaurantLogin($email: String, $password: String){
     restaurantLogin(email: $email, password: $password){
-        message
+        data
         status
     }
 }

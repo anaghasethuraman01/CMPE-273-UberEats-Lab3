@@ -13,6 +13,7 @@ const {
     GraphQLInt,
     GraphQLList,
     GraphQLNonNull,
+    
   } = graphql;
 
   const RestaurantType = new GraphQLObjectType({
@@ -43,7 +44,7 @@ const {
     name: 'Status',
     fields: () => ({
       status: { type: GraphQLString },
-      message: { type: GraphQLString },
+      data: { type: GraphQLString },
     }),
   });
   const RootQuery = new GraphQLObjectType({

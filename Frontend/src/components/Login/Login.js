@@ -74,11 +74,12 @@ class Login extends Component {
                 if (response.status === "200") {
                     this.setState({
                         success: true,
-                        signupFlag: true
+                        signupFlag: true,
+                        message : response.data
                     });
                 } else {
                     this.setState({
-                        message: response.message,
+                        message: response.data,
                         signupFlag: true
                     });
                 }
@@ -112,6 +113,7 @@ class Login extends Component {
         if(this.state.success){
             console.log("here")
             redirectHome = <Redirect to="/RestaurantHome" />
+            localStorage.setItem("email",this.state.message)
         }
         else if(this.state.message === "INVALID_RESTAURANT_CREDENTIALS"){
             message = "Invalid Credentials!";
