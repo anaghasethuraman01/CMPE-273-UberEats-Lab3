@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import jwt_decode from "jwt-decode";
 import { userLogin,restaurantLogin} from "../../actions/loginActions";
-import { restaurantLoginMutation } from '../../mutation/mutations';
+import { restaurantLoginMutation,customerLoginMutation } from '../../mutation/mutations';
 import { graphql } from 'react-apollo';
 class Login extends Component {
  
@@ -60,16 +60,15 @@ class Login extends Component {
         }
         
         if(credential.usertype === 'customer'){
-            console.log("customer")
-            //this.props.userLogin(credential);
-        }else if(credential.usertype === 'restaurant'){
-            let mutationResponse = await this.props.restaurantLoginMutation({
+            let mutationResponse = await this.props.customerLoginMutation({
                 variables: {
                     email: this.state.email,
                     password: this.state.password,
                 }
             });
-            let response = mutationResponse.data.restaurantLogin;
+            let response = mutationResponse.data.customerLogin;
+            console.log("res")
+            console.log(response)
             if(response){
                 if (response.status === "200") {
                     this.setState({
@@ -84,10 +83,30 @@ class Login extends Component {
                     });
                 }
             }
-            console.log("****")
-            console.log(this.state.success)
-            console.log("****")
-            // this.props.restaurantLogin(credential);
+        }else if(credential.usertype === 'restaurant'){
+            // let mutationResponse = await this.props.restaurantLoginMutation({
+            //     variables: {
+            //         email: this.state.email,
+            //         password: this.state.password,
+            //     }
+            // });
+            // let response = mutationResponse.data.restaurantLogin;
+            // if(response){
+            //     if (response.status === "200") {
+            //         this.setState({
+            //             success: true,
+            //             signupFlag: true,
+            //             message : response.data
+            //         });
+            //     } else {
+            //         this.setState({
+            //             message: response.data,
+            //             signupFlag: true
+            //         });
+            //     }
+            // }
+           
+           
             
         }else{
             alert("Provide valid user type");
@@ -229,4 +248,5 @@ class Login extends Component {
 //     };
 //   };
 //   export default connect(mapStateToProps, {userLogin,restaurantLogin})(Login);
-export default graphql(restaurantLoginMutation, { name: "restaurantLoginMutation" })(Login);
+//export default graphql(restaurantLoginMutation, { name: "restaurantLoginMutation" })(Login);
+export default graphql(customerLoginMutation, { name: "customerLoginMutation" })(Login);

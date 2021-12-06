@@ -75,45 +75,20 @@ class Register extends Component {
         }
         console.log(ownerData);
         if (!this.state.owner) {  
-            // let mutationResponseCustomer=await this.props.addCustomerMutation({
-            //     variables: {
-            //         username: this.state.username,
-            //         email: this.state.email,
-            //         password: this.state.password,
-            //         owner:this.state.owner
-            //     }
-            // });
-            // let response = mutationResponseCustomer.data.addCustomer;
-            // if(response){
-            //     if (response.status === "200") {
-            //         this.setState({
-            //             success: true,
-            //             signupFlag: true
-            //         });
-            //     } else {
-            //         this.setState({
-            //             message: response.message,
-            //             signupFlag: true
-            //         });
-            //     }
-            // }
-            // console.log("Sign up customer")
-            // console.log(response)
-            // console.log("Sign up customer")
-
-            
-                //this.props.userSignup(buyerData);          
-        } else {
-            let mutationResponseRestaurant =await this.props.addRestaurantMutation({
+            let mutationResponseCustomer=await this.props.addCustomerMutation({
                 variables: {
-                    restaurantname: this.state.username,
+                    username: this.state.username,
                     email: this.state.email,
                     password: this.state.password,
-                    city: this.state.city,
-                    owner:this.state.owner
+                    city:"N/A",
+                    owner:false
                 }
             });
-            let response = mutationResponseRestaurant.data.addRestaurant;
+            let response = mutationResponseCustomer.data.addCustomer;
+            console.log("Sign up customer")
+            console.log(response)
+            console.log("Sign up customer")
+            
             if(response){
                 if (response.status === "200") {
                     this.setState({
@@ -127,9 +102,39 @@ class Register extends Component {
                     });
                 }
             }
-            console.log("Sign up")
-            console.log(response)
-            console.log("Sign up")
+            // console.log("Sign up customer")
+            // console.log(response)
+            // console.log("Sign up customer")
+
+            
+                //this.props.userSignup(buyerData);          
+        } else {
+            // let mutationResponseRestaurant =await this.props.addRestaurantMutation({
+            //     variables: {
+            //         restaurantname: this.state.username,
+            //         email: this.state.email,
+            //         password: this.state.password,
+            //         city: this.state.city,
+            //         owner:this.state.owner
+            //     }
+            // });
+            // let response = mutationResponseRestaurant.data.addRestaurant;
+            // if(response){
+            //     if (response.status === "200") {
+            //         this.setState({
+            //             success: true,
+            //             signupFlag: true
+            //         });
+            //     } else {
+            //         this.setState({
+            //             message: response.message,
+            //             signupFlag: true
+            //         });
+            //     }
+            // }
+            // console.log("Sign up")
+            // console.log(response)
+            // console.log("Sign up")
          
         }
 
@@ -156,8 +161,8 @@ class Register extends Component {
         if(this.state.success){
             redirectHome = <Redirect to="/Login" />
         }
-        else if(this.state.message === "REST_PRESENT"){
-            message = "Restaurant already Registered!";
+        else if(this.state.message === "REST_PRESENT" || this.state.message ==='CUST_PRESENT'){
+            message = "Email already Registered!";
         }
        
         if (this.state.owner) {
@@ -238,5 +243,6 @@ class Register extends Component {
 //     };
 //   };
  
-  export default graphql(addRestaurantMutation, { name: "addRestaurantMutation" })(Register);
+  //export default graphql(addRestaurantMutation, { name: "addRestaurantMutation" })(Register);
+  export default graphql(addCustomerMutation, { name: "addCustomerMutation" })(Register);
 //   export default connect(mapStateToProps, {userSignup,restaurantSignup})(Register);

@@ -1,8 +1,8 @@
 const graphql = require('graphql');
-
+const Customers = require("../Models/UserModel");
 const Restaurants = require('../Models/RestaurantModel');
-const {restaurantSignup } = require('../mutations/signup');
-const {restaurantLogin } = require('../mutations/login');
+const {customerSignup,restaurantSignup } = require('../mutations/signup');
+const {restaurantLogin ,customerLogin} = require('../mutations/login');
 
 const {
     GraphQLObjectType,
@@ -15,7 +15,27 @@ const {
     GraphQLNonNull,
     
   } = graphql;
-
+  const CustomerType = new GraphQLObjectType({
+    name: 'Customer',
+    fields: () => ({
+     
+      id: { type: GraphQLID },
+      username: { type: GraphQLString },
+      email: { type: GraphQLString },
+      password: { type: GraphQLString },
+      owner: { type: GraphQLBoolean },
+      about: { type: GraphQLString },
+      dob: { type: GraphQLString },
+      address: { type: GraphQLString },
+      state: { type: GraphQLString },
+      city: { type: GraphQLString },
+      country: { type: GraphQLString },
+      nickname: { type: GraphQLString },
+      phone: { type: GraphQLInt},
+      profilepic: { type: GraphQLString },
+      
+    }),
+  });
   const RestaurantType = new GraphQLObjectType({
     name: 'Restaurant',
     fields: () => ({
@@ -44,13 +64,22 @@ const {
     name: 'Status',
     fields: () => ({
       status: { type: GraphQLString },
-      data: { type: GraphQLString },
+      message: { type: GraphQLString },
     }),
   });
   const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-     
+      customer: {
+        type: CustomerType,
+        args: { id: { type: GraphQLString } },
+        async resolve(parent, args) {
+          const customer = await Customer.findById(args.id);
+          if (customer) {
+            return customer;
+          }
+        },
+      },
       restaurant: {
         type: RestaurantType,
         args: { id: { type: GraphQLString } },
@@ -67,6 +96,20 @@ const {
   const Mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
+      addCustomer: {
+        type: StatusType,
+        args: {
+          username: { type: GraphQLString },
+          email: { type: GraphQLString },
+          password: { type: GraphQLString },
+          city: { type: GraphQLString },
+          owner: { type: GraphQLBoolean}
+        },
+        async resolve(parent, args) {
+          
+          return customerSignup(args);
+        },
+      },
         addRestaurant: {
             type: StatusType,
             args: {
@@ -78,6 +121,16 @@ const {
             },
             async resolve(parent, args) {
             return restaurantSignup(args)
+            },
+          },
+          customerLogin: {
+            type: StatusType,
+            args: {
+              email: { type: GraphQLString },
+              password: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+              return customerLogin(args);
             },
           },
           restaurantLogin: {
