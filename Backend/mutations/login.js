@@ -2,6 +2,7 @@ const Restaurant = require('../Models/RestaurantModel');
 const Customer = require("../Models/UserModel");
 const passwordHash = require('password-hash');
 const jwt = require('jsonwebtoken');
+
 // const { secret } = require('../config/config');
 
 const restaurantLogin = async (args) => {
@@ -21,7 +22,7 @@ const restaurantLogin = async (args) => {
         //     expiresIn: 1008000
         // });
         // token = 'JWT ' + token;
-        return { status: 200,message:restaurant.email };
+        return { status: 200,message:restaurant.id };
     }
     else {
         return { status: 401, message: "INVALID_RESTAURANT_CREDENTIALS" };
@@ -42,7 +43,7 @@ const customerLogin = async (args) => {
         //     expiresIn: 1008000
         // });
         // token = 'JWT ' + token;
-        return { status: 200, message: customer.email };
+        return { status: 200, message: customer.id };
     }
     else {
         return { status: 401, message: "INVALID_CUSTOMER_CREDENTIALS" };

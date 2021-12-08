@@ -25,6 +25,7 @@ const restaurantSignup = async (args) => {
         return { status: 200, message: 'REST_SIGNUP_SUCCESS' };
     }
     else {
+       
         return { status: 500, message: 'REST_SIGNUP_ERROR' };
     }
 };
@@ -47,6 +48,7 @@ const customerSignup = async (args) => {
     }
     let success = await newCustomer.save();
     if (success) {
+       
         return { status: 200, message: 'CUST_SIGNUP_SUCCESS' };
     }
     else {
