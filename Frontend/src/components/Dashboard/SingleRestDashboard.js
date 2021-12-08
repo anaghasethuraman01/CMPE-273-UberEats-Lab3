@@ -103,10 +103,10 @@ class SingleRestDashboard extends Component {
     }
 
     getDishes = () => {
-      if (this.props.data && this.props.data.menu && !this.state.restaurantMenu) {
+      if (this.props.data && this.props.data.restdishes && !this.state.restaurantMenu) {
           console.log("I got called");
            this.setState({ 
-            dishes: this.props.data.menu,
+            dishes: this.props.data.restdishes,
           });
       }        
   };

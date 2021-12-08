@@ -8,6 +8,7 @@ const {restaurantLogin ,customerLogin} = require('../mutations/login');
 const {addDish } = require('../mutations/adddish');
 const { customerUpdate } = require('../mutations/profile');
 const { createOrder, updateOrder } = require('../mutations/orders');
+const { GraphQLUpload } = require("graphql-upload");
 const {
     GraphQLObjectType,
     GraphQLString,
@@ -131,14 +132,13 @@ const {
           }
         },
       },
-      menu: {
+      restdishes: {
         type: new GraphQLList(RestDishType),
         args: { restaurantid: { type: GraphQLString } },
         async resolve(parent, args) {
-          const restaurant = await Dish.findById(args.restaurantid);
-          if (restaurant) {
-            const menu = restaurant.rest_dishes;
-            return menu;
+          const dishes = await Dish.findById(args.restaurantid);
+          if (dishes) {
+            return dishes;
           }
         },
       },
@@ -252,6 +252,23 @@ const {
                 return results;
               });;
             },
+          },
+          
+          uploadImage: {
+              description: "Uploads an image.",
+              type: GraphQLBoolean,
+              args: {
+                image: {
+                  description: "Image file.",
+                  type: GraphQLUpload,
+                },
+              },
+              async resolve(parent, { image }) {
+                const { filename, mimetype, createReadStream } = await image;
+                const stream = createReadStream();
+                // Promisify the stream and store the file, then…
+                return true;
+              },
           },
           createOrder: {
             type: StatusType,

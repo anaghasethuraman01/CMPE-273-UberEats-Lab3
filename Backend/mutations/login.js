@@ -43,7 +43,7 @@ const customerLogin = async (args) => {
         //     expiresIn: 1008000
         // });
         // token = 'JWT ' + token;
-        return { status: 200, message: customer.id };
+        return { status: 200, message: "customer.id" };
     }
     else {
         return { status: 401, message: "INVALID_CUSTOMER_CREDENTIALS" };

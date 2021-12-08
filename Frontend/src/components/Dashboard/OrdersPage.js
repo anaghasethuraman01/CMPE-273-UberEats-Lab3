@@ -136,8 +136,6 @@ handleChangeOrderType = (e) => {
 
  updatestatusfn = async (e,valid,otype) =>{
    e.preventDefault();
-  
-
    let mutationResponse = await this.props.updateOrderMutation({
     variables: {
         orderid: valid,
@@ -145,6 +143,8 @@ handleChangeOrderType = (e) => {
     }
     });
     let response = mutationResponse.data.updateOrder;
+    console.log("Update Order Status :")
+    console.log(response)
     if (response) {
         if (response.status === "200") {
             this.setState({

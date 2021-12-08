@@ -50,9 +50,6 @@ class Main extends Component {
                     <Route path="/editdishpage" component={EditDishPage}/>
                     <Route path="/launchCustomer" component={LaunchCustomer}/>
                     <Route path="/launchRestaurant" component={LaunchRestaurant}/>
-
-                    
-
                 </div>    
             </Router>
             

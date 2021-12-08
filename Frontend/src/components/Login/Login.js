@@ -68,7 +68,7 @@ class Login extends Component {
                 }
             });
             let response = mutationResponse.data.customerLogin;
-            console.log("res")
+        
             console.log(response)
             if(response){
                 if (response.status === "200") {

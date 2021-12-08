@@ -59,7 +59,7 @@ const getRestaurantsQuery = gql`
 
 const getRestaurantMenuQuery = gql`
 query($restaurantid: String){
-    menu(restaurantid: $restaurantid) {
+    restdishes(restaurantid: $restaurantid) {
         dishname
         ingrediants
         description
