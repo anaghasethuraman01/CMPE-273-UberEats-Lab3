@@ -4,6 +4,9 @@ import React, {Component} from 'react'
 import {Modal,Table,Pagination} from 'react-bootstrap';
 import axios from 'axios';
 import backendServer from "../../webConfig";
+import { graphql,compose } from 'react-apollo';
+import { getRestaurantOrdersQuery } from "../../queries/queries";
+import { updateOrderMutation } from "../../mutation/mutations";
 class OrdersPage extends Component {
   
   constructor(props) {
@@ -99,38 +102,64 @@ class OrdersPage extends Component {
             const val = {
                 restaurantid:restaurantid
             }
+            this.getRestaurantOrders();
 
           //  axios.defaults.headers.common.authorization = localStorage.getItem('token');
-          axios.post(`${backendServer}/getrestaurantorders`,val).then((response) => {
+          // axios.post(`${backendServer}/getrestaurantorders`,val).then((response) => {
               
-                if(response.data.length > 0){
-                    this.setState({ orderstatusmsg: "found" });
-                }
-                // //update the state with the response data
-                this.setState({
-                restaurantorders: this.state.restaurantorders.concat(response.data),
-                });
-                console.log(this.state.restaurantorders)
+          //       if(response.data.length > 0){
+          //           this.setState({ orderstatusmsg: "found" });
+          //       }
+          //       // //update the state with the response data
+          //       this.setState({
+          //       restaurantorders: this.state.restaurantorders.concat(response.data),
+          //       });
+          //       console.log(this.state.restaurantorders)
                 
-            });
+          //   });
 
         }
        
 	}
+  getRestaurantOrders() {
+    if (this.props.data && this.props.data.restaurantOrders 
+        && this.state && !this.state.restaurantOrderHistory) {
+        console.log("I got called");
+         this.setState({ 
+            restaurantOrderHistory: this.props.data.restaurantOrders,
+        });
+    }
+}
 handleChangeOrderType = (e) => {
         this.setState({ [e.target.name]: e.target.value });
         }
 
- updatestatusfn = (e,valid,otype) =>{
+ updatestatusfn = async (e,valid,otype) =>{
    e.preventDefault();
   
-   const ordertypedata = {
-     orderid : valid,
-     orderstatus : otype
-   }
-   console.log(ordertypedata)
-   this.updateOrderStatus(ordertypedata);
-   
+
+   let mutationResponse = await this.props.updateOrderMutation({
+    variables: {
+        orderid: valid,
+        orderstatus: otype,
+    }
+    });
+    let response = mutationResponse.data.updateOrder;
+    if (response) {
+        if (response.status === "200") {
+            this.setState({
+                success: true,
+                data: response.message,
+                loginFlag: true
+            });
+        } else {
+            this.setState({
+                message: response.message,
+                loginFlag: true
+            });
+    }
+}
+
  }
 
 
@@ -534,4 +563,12 @@ searchOrder = (ordersearch) => {
     }
 }
 
-export default OrdersPage
+
+export default compose(
+  graphql (getRestaurantOrdersQuery, {
+      name: "data",
+      options: { variables: { restaurantid: localStorage.getItem("restaurantid")  }
+      }
+  }),
+  graphql(updateOrderMutation, { name: "updateOrderMutation" })
+  ) (OrdersPage);

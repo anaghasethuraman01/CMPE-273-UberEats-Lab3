@@ -4,7 +4,9 @@ import { Button } from 'reactstrap';
 import backendServer from "../../webConfig";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { compose, graphql } from 'react-apollo';
 import { userProfile} from "../../actions/profileActions";
+import { getCustomerQuery } from "../../queries/queries";
 class CustomerProfile extends Component {
     
     constructor(props){
@@ -36,9 +38,19 @@ class CustomerProfile extends Component {
         const customerid = {
           userid: localStorage.getItem("userid")
         };
-        this.props.userProfile(customerid);
+        //this.props.userProfile(customerid);
+        this.getCustProfile();
         
       }
+      getCustProfile(){
+        if (this.props.data && this.props.data.customer && this.state && !this.state.customerDetails) {
+            console.log(this.props.data);
+             this.setState({ 
+                customerDetails: this.props.data.customer,
+            });
+            
+        }
+    }
 
       componentWillReceiveProps(nextProps) {
         if (nextProps.profile) {
@@ -56,13 +68,13 @@ class CustomerProfile extends Component {
                 country:profile.country|| this.state.country,
                 nickname:profile.nickname|| this.state.nickname,
                 dob:profile.dob||this.state.dob,
-                profilepic:profile.profilepic||this.state.profilepic
+                // profilepic:profile.profilepic||this.state.profilepic
 
             };
 
             this.setState({customerdetails:userData});
-            localStorage.setItem("city",profile.city)
-            localStorage.setItem("profilepic",profile.profilepic)
+            // localStorage.setItem("city",profile.city)
+            // localStorage.setItem("profilepic",profile.profilepic)
         }
     }
     
@@ -115,7 +127,7 @@ class CustomerProfile extends Component {
       
      
       handleSubmit = (customerObj) => {
-        localStorage.setItem("CustomerDetails",JSON.stringify(customerObj));
+        localStorage.setItem("CustomerDetails",JSON.stringify(this.state.customerDetails));
         const {history} = this.props;
         history.push('/customereditprofile'); 
       }
@@ -143,11 +155,13 @@ class CustomerProfile extends Component {
        
           
     render(){
+      this.getCustProfile();
      let username = "";
      let customerdetails = []
-      const imgLink = `${backendServer}${localStorage.getItem("profilepic")}`;
-      console.log(imgLink)
-      username = this.props.profile.username;
+      // const imgLink = `${backendServer}${localStorage.getItem("profilepic")}`;
+      // console.log(imgLink)
+      // username = ""
+      
     return (
 
 
@@ -159,7 +173,7 @@ class CustomerProfile extends Component {
           </div>
           <div className="form-group">
 
-          <img src={imgLink} alt="No image added. Add Image." style={{ maxHeight: '180px', maxWidth: '180px' }} />
+          {/* <img src={imgLink} alt="No image added. Add Image." style={{ maxHeight: '180px', maxWidth: '180px' }} /> */}
           
           </div>
           <div className="form-group">
@@ -213,15 +227,23 @@ class CustomerProfile extends Component {
    
 }
  
-CustomerProfile.propTypes = {
-  userProfile: PropTypes.func.isRequired,
-  profile: PropTypes.object.isRequired,
-};
+// CustomerProfile.propTypes = {
+//   userProfile: PropTypes.func.isRequired,
+//   profile: PropTypes.object.isRequired,
+// };
 
-const mapStateToProps = (state) => {
-  return {
-    profile: state.profile.profile,
-  };
-};
+// const mapStateToProps = (state) => {
+//   return {
+//     profile: state.profile.profile,
+//   };
+// };
 
-export default connect(mapStateToProps, {userProfile})(CustomerProfile);
+export default compose(
+  graphql(getCustomerQuery, {
+      name: "data",
+      options: { variables: { id: localStorage.getItem("userid") }
+      }
+  })
+)
+(CustomerProfile);
+//export default connect(mapStateToProps, {userProfile})(CustomerProfile);

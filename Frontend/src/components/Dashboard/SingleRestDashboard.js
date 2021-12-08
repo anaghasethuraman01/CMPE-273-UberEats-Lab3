@@ -10,7 +10,10 @@ import {BiCartAlt} from 'react-icons/bi';
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { restaurantHome } from "../../actions/restaurantHomeActions";
-
+import { graphql } from 'react-apollo';
+import { addToCartMutation } from "../../mutation/mutations";
+import { getRestaurantMenuQuery } from "../../queries/queries";
+import { compose } from 'redux';
 
 class SingleRestDashboard extends Component {
     
@@ -59,7 +62,8 @@ class SingleRestDashboard extends Component {
         const restaurantid = {
           restaurantid: localStorage.getItem("restaurantid")
       };
-      this.props.restaurantHome(restaurantid);
+      this.getDishes();
+      //this.props.restaurantHome(restaurantid);
       // axios.defaults.headers.common.authorization = localStorage.getItem('token');
       //   axios.post(`${backendServer}/getrestaurantwithid`,restaurantid)
       //           .then((response) => { 
@@ -73,20 +77,18 @@ class SingleRestDashboard extends Component {
             
             // const userid = localStorage.getItem("restaurantid")
             // console.log(userid)
-            const restid = {
-              userid: localStorage.getItem("restaurantid")
-            };
-            // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-            //   "token"
-            // );
-            axios.post(`${backendServer}/getrestaurantprofile`,restid)
-            .then((response) => { 
-              console.log("****")
-              console.log(response)
-              console.log("****")
-            this.setState({
-              restaurants : this.state.restaurants.concat(response.data) 
-            });
+            // const restid = {
+            //   userid: localStorage.getItem("restaurantid")
+            // };
+           
+            // axios.post(`${backendServer}/getrestaurantprofile`,restid)
+            // .then((response) => { 
+            //   console.log("****")
+            //   console.log(response)
+            //   console.log("****")
+            // this.setState({
+            //   restaurants : this.state.restaurants.concat(response.data) 
+            // });
            
         //     this.setState({
         //       restaurantname : response.data[0].username
@@ -96,20 +98,29 @@ class SingleRestDashboard extends Component {
         //     });
         //     localStorage.setItem("DeliveryType",this.state.deliverytype);
             
-         });    
+        // });    
 
     }
-    componentWillReceiveProps(nextProps) {
-      if (nextProps.resthome) {
-          var { resthome } = nextProps;
-  }
+
+    getDishes = () => {
+      if (this.props.data && this.props.data.menu && !this.state.restaurantMenu) {
+          console.log("I got called");
+           this.setState({ 
+            dishes: this.props.data.menu,
+          });
+      }        
+  };
+  //   componentWillReceiveProps(nextProps) {
+  //     if (nextProps.resthome) {
+  //         var { resthome } = nextProps;
+  // }
   
-  this.setState({
-    dishes: this.state.dishes.concat(resthome)
-  });
-  // console.log(typeof(favourite))
+  // this.setState({
+  //   dishes: this.state.dishes.concat(resthome)
+  // });
+  // // console.log(typeof(favourite))
   
-  }
+  // }
   handleCheckout(){
       //console.log(this.props);
       const {history} = this.props;
@@ -127,26 +138,59 @@ class SingleRestDashboard extends Component {
         history.push('/favourites'); 
       }
     
-     addtocart = (restid,dishid,dishname,dishprice) =>{
+     addtocart =async (restid,dishid,dishname,dishprice) =>{
       
-       const cartvalue = {
-         customerid : localStorage.getItem("userid"),
-         deliverytype :localStorage.getItem("deliverytype"),
-         restaurantid : restid,
-         dishid:dishid,
-         dishname:dishname,
-         dishprice:dishprice,
-         quantity:this.state.quantity,
-         quantityprice :(dishprice * this.state.quantity) 
-        }
+        let mutationResponse = await this.props.addToCartMutation({
+          variables: {
+            customerid : localStorage.getItem("userid"),
+            deliverytype :"Delivery",
+            restaurantid : restid,
+            dishid:dishid,
+            dishname:dishname,
+            dishprice:dishprice,
+            quantity:this.state.quantity,
+            quantityprice :(dishprice * this.state.quantity) 
+          }
+      });
+      let response = mutationResponse.data.addCart;
+      console.log("response")
+      console.log(response)
+      console.log("response")
+        // if (this.validateDish() === true){
+        //   const dishData = {
+        //       restaurantid:localStorage.getItem("restaurantid"),
+        //       dishname:this.state.dishname,
+        //       ingrediants:this.state.ingrediants,
+        //       price:this.state.price,
+        //       description:this.state.description,
+        //       category:this.state.category,
+        //       foodtype:this.state.foodtype
+        //   }
+        //   this.sendDishAPI(dishData);
+        //   this.setState({
+        //     show : true 
+        //   });
+        // }
         
-          localStorage.setItem("dishid",dishid);
-          localStorage.setItem("dishname",dishname);
-          localStorage.setItem("dishprice",dishprice);
-          localStorage.setItem("quantity",cartvalue.quantity);
-          localStorage.setItem("quantityprice",cartvalue.quantityprice);
       
-       this.addToCart(cartvalue);
+      //  const cartvalue = {
+      //    customerid : localStorage.getItem("userid"),
+      //    deliverytype :localStorage.getItem("deliverytype"),
+      //    restaurantid : restid,
+      //    dishid:dishid,
+      //    dishname:dishname,
+      //    dishprice:dishprice,
+      //    quantity:this.state.quantity,
+      //    quantityprice :(dishprice * this.state.quantity) 
+      //   }
+        
+          // localStorage.setItem("dishid",dishid);
+          // localStorage.setItem("dishname",dishname);
+          // localStorage.setItem("dishprice",dishprice);
+          // localStorage.setItem("quantity",cartvalue.quantity);
+          // localStorage.setItem("quantityprice",cartvalue.quantityprice);
+      
+      // this.addToCart(cartvalue);
       //  this.setState({
       //   show : true 
       // });
@@ -154,30 +198,30 @@ class SingleRestDashboard extends Component {
         handleModalClose(){
         this.setState({show:!this.state.show}) 
          }
-    addToCart = (data) => {
-      console.log("add to cart")
+  //   addToCart = (data) => {
+  //     console.log("add to cart")
       
-      // axios.defaults.headers.common["authorization"] = localStorage.getItem(
-      //   "token");
-      axios.defaults.withCredentials = true;
-      axios.post(`${backendServer}/addtocarttable`, data).then((res) => {
-        console.log("res.data")
-        console.log(res.data)
-          if(res.data === "Delete previous order"){
-            this.setState({show:"true"})
-          }
-          if(res.data === "Quantity updated"){
-            this.setState({showfav:"true"})
-          }
+  //     // axios.defaults.headers.common["authorization"] = localStorage.getItem(
+  //     //   "token");
+  //     axios.defaults.withCredentials = true;
+  //     axios.post(`${backendServer}/addtocarttable`, data).then((res) => {
+  //       console.log("res.data")
+  //       console.log(res.data)
+  //         if(res.data === "Delete previous order"){
+  //           this.setState({show:"true"})
+  //         }
+  //         if(res.data === "Quantity updated"){
+  //           this.setState({showfav:"true"})
+  //         }
         
-          // console.log("Status Code : ", res.status);
-          // if (res.status === 200) {
-          //   this.setState({ authFlag: true });
-          // } else {
-          //   this.setState({ authFlag: false });
-          // }
-      });
-	};
+  //         // console.log("Status Code : ", res.status);
+  //         // if (res.status === 200) {
+  //         //   this.setState({ authFlag: true });
+  //         // } else {
+  //         //   this.setState({ authFlag: false });
+  //         // }
+  //     });
+	// };
   handleNewOrder = () => {
     const data = {
         customerid : localStorage.getItem("userid"),
@@ -310,16 +354,23 @@ class SingleRestDashboard extends Component {
 }
  
 
-SingleRestDashboard.propTypes = {
-	restaurantHome: PropTypes.func.isRequired,
-	resthome: PropTypes.object.isRequired,
-  };
+// SingleRestDashboard.propTypes = {
+// 	restaurantHome: PropTypes.func.isRequired,
+// 	resthome: PropTypes.object.isRequired,
+//   };
   
-  const mapStateToProps = (state) => {
-	return {
-		resthome: state.resthome.resthome
-	};
-  };
-  
-export default connect(mapStateToProps, {restaurantHome})(SingleRestDashboard);
+//   const mapStateToProps = (state) => {
+// 	return {
+// 		resthome: state.resthome.resthome
+// 	};
+//   };
+export default compose(
+graphql(getRestaurantMenuQuery, {
+    name: "data",
+    options: { variables: { restaurantid: localStorage.getItem("restaurantid") }
+    }
+}),
+graphql(addToCartMutation, { name: "addToCartMutation" }))(SingleRestDashboard);
+
+//export default connect(mapStateToProps, {restaurantHome})(SingleRestDashboard);
 //export default SingleRestDashboard;

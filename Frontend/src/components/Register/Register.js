@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button ,Input} from 'reactstrap';
 import { Redirect } from 'react-router';
-
+import { compose } from 'redux';
 import validator from 'validator';
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
@@ -16,7 +16,8 @@ class Register extends Component {
         this.state = {
             success:'',
             signupFlag:'',
-            message:''
+            message:'',
+            
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -109,29 +110,29 @@ class Register extends Component {
             
                 //this.props.userSignup(buyerData);          
         } else {
-            // let mutationResponseRestaurant =await this.props.addRestaurantMutation({
-            //     variables: {
-            //         restaurantname: this.state.username,
-            //         email: this.state.email,
-            //         password: this.state.password,
-            //         city: this.state.city,
-            //         owner:this.state.owner
-            //     }
-            // });
-            // let response = mutationResponseRestaurant.data.addRestaurant;
-            // if(response){
-            //     if (response.status === "200") {
-            //         this.setState({
-            //             success: true,
-            //             signupFlag: true
-            //         });
-            //     } else {
-            //         this.setState({
-            //             message: response.message,
-            //             signupFlag: true
-            //         });
-            //     }
-            // }
+            let mutationResponseRestaurant =await this.props.addRestaurantMutation({
+                variables: {
+                    restaurantname: this.state.username,
+                    email: this.state.email,
+                    password: this.state.password,
+                    city: this.state.city,
+                    owner:this.state.owner
+                }
+            });
+            let response = mutationResponseRestaurant.data.addRestaurant;
+            if(response){
+                if (response.status === "200") {
+                    this.setState({
+                        success: true,
+                        signupFlag: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.message,
+                        signupFlag: true
+                    });
+                }
+             }
             // console.log("Sign up")
             // console.log(response)
             // console.log("Sign up")
@@ -244,5 +245,10 @@ class Register extends Component {
 //   };
  
   //export default graphql(addRestaurantMutation, { name: "addRestaurantMutation" })(Register);
-  export default graphql(addCustomerMutation, { name: "addCustomerMutation" })(Register);
+  export default compose(
+    graphql(addCustomerMutation, { name: "addCustomerMutation" }),
+    graphql(addRestaurantMutation, { name: "addRestaurantMutation" })
+   )
+    (Register);
+
 //   export default connect(mapStateToProps, {userSignup,restaurantSignup})(Register);

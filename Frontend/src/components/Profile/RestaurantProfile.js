@@ -3,6 +3,8 @@ import { Button} from 'reactstrap';
 import backendServer from "../../webConfig";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { getRestaurantQuery } from "../../queries/queries";
+import { graphql } from 'react-apollo';
 import { restaurantProfile} from "../../actions/profileActions";
 class RestaurantProfile extends Component {
     
@@ -17,9 +19,18 @@ class RestaurantProfile extends Component {
         const restaurantid = {
           userid: localStorage.getItem("restaurantid")
         };
+        this.getRestprofile();
         
-        this.props.restaurantProfile(restaurantid);
+       // this.props.restaurantProfile(restaurantid);
       }
+      getRestprofile(){
+        if (this.props.data && this.props.data.restaurant && !this.state.restaurantDetails) {
+            console.log("I got called");
+             this.setState({ 
+                 restaurantDetails: this.props.data.restaurant,
+             });
+        }
+     }
       componentWillReceiveProps(nextProps) {
         if (nextProps.profile) {
             var { profile } = nextProps;       
@@ -57,6 +68,7 @@ class RestaurantProfile extends Component {
       }
 
       render(){
+        this.getRestprofile();
       const imgLink = `${backendServer}${localStorage.getItem("profilepic")}`;
     return (
       
@@ -121,15 +133,20 @@ class RestaurantProfile extends Component {
     )
     }  
 }
-RestaurantProfile.propTypes = {
-  restaurantProfile: PropTypes.func.isRequired,
-  profile: PropTypes.object.isRequired,
-};
+// RestaurantProfile.propTypes = {
+//   restaurantProfile: PropTypes.func.isRequired,
+//   profile: PropTypes.object.isRequired,
+// };
 
-const mapStateToProps = (state) => {
-  return {
-    profile: state.profile.profile,
-  };
-};
+// const mapStateToProps = (state) => {
+//   return {
+//     profile: state.profile.profile,
+//   };
+// };
 
-export default connect(mapStateToProps, {restaurantProfile})(RestaurantProfile);
+// export default connect(mapStateToProps, {restaurantProfile})(RestaurantProfile);
+export default graphql(getRestaurantQuery, {
+  name: "data",
+  options: { variables: { id: localStorage.getItem("restaurantid") }
+  }
+})(RestaurantProfile);

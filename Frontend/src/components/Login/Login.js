@@ -13,6 +13,7 @@ import jwt_decode from "jwt-decode";
 import { userLogin,restaurantLogin} from "../../actions/loginActions";
 import { restaurantLoginMutation,customerLoginMutation } from '../../mutation/mutations';
 import { graphql } from 'react-apollo';
+import { compose } from 'redux';
 class Login extends Component {
  
     constructor(props) {
@@ -74,37 +75,39 @@ class Login extends Component {
                     this.setState({
                         success: true,
                         signupFlag: true,
-                        message : response.data
+                        message : response.message,
+                        owner:false
                     });
                 } else {
                     this.setState({
-                        message: response.data,
+                        message: response.message,
                         signupFlag: true
                     });
                 }
             }
         }else if(credential.usertype === 'restaurant'){
-            // let mutationResponse = await this.props.restaurantLoginMutation({
-            //     variables: {
-            //         email: this.state.email,
-            //         password: this.state.password,
-            //     }
-            // });
-            // let response = mutationResponse.data.restaurantLogin;
-            // if(response){
-            //     if (response.status === "200") {
-            //         this.setState({
-            //             success: true,
-            //             signupFlag: true,
-            //             message : response.data
-            //         });
-            //     } else {
-            //         this.setState({
-            //             message: response.data,
-            //             signupFlag: true
-            //         });
-            //     }
-            // }
+            let mutationResponse = await this.props.restaurantLoginMutation({
+                variables: {
+                    email: this.state.email,
+                    password: this.state.password,
+                }
+            });
+            let response = mutationResponse.data.restaurantLogin;
+            if(response){
+                if (response.status === "200") {
+                    this.setState({
+                        success: true,
+                        signupFlag: true,
+                        message : response.message,
+                        owner:true
+                    });
+                } else {
+                    this.setState({
+                        message: response.message,
+                        signupFlag: true
+                    });
+                }
+            }
            
            
             
@@ -129,14 +132,19 @@ class Login extends Component {
             redirectHome = <Redirect to="/" />
            
         }
-        if(this.state.success){
+        if(this.state.success && this.state.owner){
             console.log("here")
             redirectHome = <Redirect to="/RestaurantHome" />
-            localStorage.setItem("email",this.state.message)
+            localStorage.setItem("restaurantid",this.state.message)
+        }else if(this.state.success && !this.state.owner){
+            localStorage.setItem("userid",this.state.message)
+            redirectHome = <Redirect to="/CustomerHome" />
         }
-        else if(this.state.message === "INVALID_RESTAURANT_CREDENTIALS"){
+        else if(this.state.message === "INVALID_RESTAURANT_CREDENTIALS" ||this.state.message === "INVALID_CUSTOMER_CREDENTIALS"){
             message = "Invalid Credentials!";
-        }
+         }else if(this.state.message === "NO_CUSTOMER" || this.state.message === "NO_RESTAURANT" ){
+            message = "Invalid User!";
+         }
         //console.log(this.props.login)
 
        
@@ -249,4 +257,7 @@ class Login extends Component {
 //   };
 //   export default connect(mapStateToProps, {userLogin,restaurantLogin})(Login);
 //export default graphql(restaurantLoginMutation, { name: "restaurantLoginMutation" })(Login);
-export default graphql(customerLoginMutation, { name: "customerLoginMutation" })(Login);
+export default compose(
+ graphql(restaurantLoginMutation, { name: "restaurantLoginMutation" }),
+ graphql(customerLoginMutation, { name: "customerLoginMutation" }))
+ (Login);

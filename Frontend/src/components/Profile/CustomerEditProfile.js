@@ -7,7 +7,9 @@ import {Modal} from 'react-bootstrap';
 import axios from 'axios';
 import { Button,Input } from 'reactstrap';
 import backendServer from "../../webConfig";
+import { compose, graphql } from 'react-apollo';
 import { CountryDropdown } from 'react-country-region-selector';
+import { customerUpdateMutation } from "../../mutation/mutations";
 import validator from 'validator';
 class CustomerEditProfile extends Component {
     
@@ -133,34 +135,64 @@ class CustomerEditProfile extends Component {
       this.setState({customerDetails}); 
     } 
 
-      handleSubmit = (e) => {
+      handleSubmit = async (e) => {
         e.preventDefault();
-        
-        
-         if (this.validateProfile() === true){
-              const customerData = {
-              userid:this.state.customerDetails.userid,
-              username: this.state.customerDetails.username,
-              email:this.state.customerDetails.email ,
-              about: this.state.customerDetails.about,
-              phone:this.state.customerDetails.phone,
-              nickname:this.state.customerDetails.nickname,
-              dob:this.state.customerDetails.dob,
-              state:this.state.customerDetails.state,
-              city:this.state.customerDetails.city,
-              address:this.state.customerDetails.address,
-              country:this.state.customerDetails.country,
-              
-          }
-          
-        console.log(customerData)
-        localStorage.setItem("username",this.state.customerDetails.username);
-        this.sendRestAPI(customerData);
-        
-        this.setState({
-          show : true 
+        console.log("on customer profile update");
+        let mutationResponse = await this.props.customerUpdateMutation({
+            variables: {
+                email: this.state.customerDetails.email,
+                username: this.state.username?this.state.name:this.state.customerDetails.username,
+                phone: this.state.phone?this.state.phone:this.state.customerDetails.phone,
+                dob: this.state.dob?this.state.dob:this.state.customerDetails.dob,
+                city: this.state.city?this.state.city:this.state.customerDetails.city,
+                state: this.state.state?this.state.state:this.state.customerDetails.state,
+                country: this.state.country?this.state.country:this.state.customerDetails.country,
+                nickname: this.state.nickname?this.state.nickname:this.state.customerDetails.nickname,
+                about: this.state.about?this.state.about:this.state.customerDetails.about,
+               
+            }
         });
-         }        
+        let response = mutationResponse.data.customerUpdate;
+        if (response) {
+            if (response.status === "200") {
+                this.setState({
+                    success: true,
+                    data: response.message,
+                    updateFlag: true
+                });
+            } else {
+                this.setState({
+                    message: response.message,
+                    updateFlag: true
+                });
+            }
+        }
+    
+        
+        //  if (this.validateProfile() === true){
+        //       const customerData = {
+        //       userid:this.state.customerDetails.userid,
+        //       username: this.state.customerDetails.username,
+        //       email:this.state.customerDetails.email ,
+        //       about: this.state.customerDetails.about,
+        //       phone:this.state.customerDetails.phone,
+        //       nickname:this.state.customerDetails.nickname,
+        //       dob:this.state.customerDetails.dob,
+        //       state:this.state.customerDetails.state,
+        //       city:this.state.customerDetails.city,
+        //       address:this.state.customerDetails.address,
+        //       country:this.state.customerDetails.country,
+              
+        //   }
+          
+        // // console.log(customerData)
+        // // localStorage.setItem("username",this.state.customerDetails.username);
+        // // this.sendRestAPI(customerData);
+        
+        // this.setState({
+        //   show : true 
+        // });
+        //  }        
       
     }
  
@@ -309,4 +341,7 @@ class CustomerEditProfile extends Component {
    
 }
  
-export default CustomerEditProfile;
+export default compose(
+ 
+  graphql(customerUpdateMutation, { name: "customerUpdateMutation" })
+)(CustomerEditProfile);

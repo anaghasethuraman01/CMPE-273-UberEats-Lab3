@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+const restDishSchema = require('./DishModel');
 var restaurantSchema = new Schema({
     restaurantname: {type: String, required: true},
     email:    {type:String,required:true},
@@ -8,7 +8,7 @@ var restaurantSchema = new Schema({
     owner:{type: Boolean, required: true},
     city:{type:String,required:true},
     description: {type: String, required: false},
-    phone: {type: Number, required: false},
+    phone: {type: String, required: false},
     address: {type: String, required: false},
     state: {type: String, required: false},
     country: {type: String, required: false},
@@ -17,7 +17,8 @@ var restaurantSchema = new Schema({
     deliverytype: {type: String, required: false},
     zipcode: {type: String, required: false},
     foodtype:{type:String,required:false},
-    profilepic:{type:String,required:false}
+    profilepic:{type:String,required:false},
+    // rest_dishes: [restDishSchema],
 },
 {
     versionKey: false

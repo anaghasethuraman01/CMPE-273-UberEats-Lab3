@@ -4,7 +4,8 @@ import axios from 'axios';
 import { Button, Input } from 'reactstrap';
 import {Modal} from 'react-bootstrap';
 import backendServer from "../../webConfig";
-
+import { addDishMutation } from "../../mutation/mutations";
+import { graphql } from 'react-apollo';
 class AddRestaurantMenu extends Component {
     
     constructor(props){
@@ -68,10 +69,10 @@ class AddRestaurantMenu extends Component {
   
     return isValid;
   }
-      handleSubmit = (e) => {
+      handleSubmit = async (e) => {
         e.preventDefault();
-        if (this.validateDish() === true){
-          const dishData = {
+        let mutationResponse = await this.props.addDishMutation({
+          variables: {
               restaurantid:localStorage.getItem("restaurantid"),
               dishname:this.state.dishname,
               ingrediants:this.state.ingrediants,
@@ -80,11 +81,26 @@ class AddRestaurantMenu extends Component {
               category:this.state.category,
               foodtype:this.state.foodtype
           }
-          this.sendDishAPI(dishData);
-          this.setState({
-            show : true 
-          });
-        }
+      });
+      let response = mutationResponse.data.addDish;
+      console.log("response")
+      console.log(response)
+      console.log("response")
+        // if (this.validateDish() === true){
+        //   const dishData = {
+        //       restaurantid:localStorage.getItem("restaurantid"),
+        //       dishname:this.state.dishname,
+        //       ingrediants:this.state.ingrediants,
+        //       price:this.state.price,
+        //       description:this.state.description,
+        //       category:this.state.category,
+        //       foodtype:this.state.foodtype
+        //   }
+        //   this.sendDishAPI(dishData);
+        //   this.setState({
+        //     show : true 
+        //   });
+        // }
         
       }
       goback = () =>{
@@ -240,4 +256,5 @@ class AddRestaurantMenu extends Component {
    
 }
  
-export default AddRestaurantMenu;
+
+export default graphql(addDishMutation, { name: "addDishMutation" })(AddRestaurantMenu);
